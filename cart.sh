@@ -1,40 +1,43 @@
 #!/bin/bash
+
 ID=$(id -u)
-TIMESTAMP=$(date +%F-%H-%M-%S)
 R="\e[31m"
 G="\e[32m"
+Y="\e[33m"
 N="\e[0m"
-LOGFILE="/tmp/$0-$TIMESTAMP.log"
-#exec &> $LOGFILE
 
-echo "Script started excuting at $TIMESTAMP" &>> $LOGFILE 
+
+TIMESTAMP=$(date +%F-%H-%M-%S)
+LOGFILE="/tmp/$0-$TIMESTAMP.log"
+
+echo "script stareted executing at $TIMESTAMP" &>> $LOGFILE
 
 VALIDATE(){
     if [ $1 -ne 0 ]
     then
-        echo -e "Error:: $2..  $R is failed $N"
+        echo -e "$2 ... $R FAILED $N"
         exit 1
     else
-        echo -e "$2  $G is success $N"
+        echo -e "$2 ... $G SUCCESS $N"
     fi
-
 }
+
 if [ $ID -ne 0 ]
 then
-    echo -e "$R Error:: please run with root user $N"
-    exit 1
+    echo -e "$R ERROR:: Please run this script with root access $N"
+    exit 1 # you can give other than 0
 else
     echo "You are root user"
-fi
+fi # fi means reverse of if, indicating condition end
 
 dnf module disable nodejs -y &>> $LOGFILE
-VALIDATE $? "Disabling current NodeJs10"
+VALIDATE $? "Disabling current NodeJS"
 
-dnf module enable nodejs:18 -y &>> $LOGFILE
-VALIDATE $? "Enabling NodeJs18"
+dnf module enable nodejs:18 -y  &>> $LOGFILE
+VALIDATE $? "Enabling NodeJS:18"
 
-dnf install nodejs -y &>> $LOGFILE
-VALIDATE $? "Installing NodeJs Server"
+dnf install nodejs -y  &>> $LOGFILE
+VALIDATE $? "Installing NodeJS:18"
 
 id roboshop #if roboshop user does not exist, then it is failure
 if [ $? -ne 0 ]
@@ -46,32 +49,32 @@ else
 fi
 
 mkdir -p /app
-VALIDATE $? "Creating app directory"
+VALIDATE $? "creating app directory"
 
-curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip &>> $LOGFILE
-VALIDATE $? "Downloading the cart package"
+curl -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip  &>> $LOGFILE
+VALIDATE $? "Downloading cart application"
 
 cd /app 
 
-unzip -o /tmp/cart.zip &>> $LOGFILE
-VALIDATE $? "Unzipping the cart package"
+unzip -o /tmp/cart.zip  &>> $LOGFILE
+VALIDATE $? "unzipping cart"
 
-npm install &>> $LOGFILE
-VALIDATE $? "Installing npm package"
+npm install  &>> $LOGFILE
+VALIDATE $? "Installing dependencies"
 
 # use absolute, because cart.service exists there
 cp /home/centos/roboshop-shell-1/cart.service /etc/systemd/system/cart.service &>> $LOGFILE
-VALIDATE $? "Adding cart package"
+
+VALIDATE $? "Copying cart service file"
 
 systemctl daemon-reload &>> $LOGFILE
-VALIDATE $? "Cart demon reload"
+
+VALIDATE $? "cart daemon reload"
 
 systemctl enable cart &>> $LOGFILE
-VALIDATE $? "Enabling cart "
+
+VALIDATE $? "Enable cart"
 
 systemctl start cart &>> $LOGFILE
-VALIDATE $? "Starting cart "
 
-
-
-
+VALIDATE $? "Starting cart"

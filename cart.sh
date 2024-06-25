@@ -48,28 +48,28 @@ fi
 mkdir /app
 VALIDATE $? "Creating app directory"
 
-curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip
+curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip &>> $LOGFILE
 VALIDATE $? "Downloading the cart package"
 
 cd /app 
 
-unzip -o /tmp/cart.zip
+unzip -o /tmp/cart.zip &>> $LOGFILE
 VALIDATE $? "Unzipping the cart package"
 
-npm install 
+npm install &>> $LOGFILE
 VALIDATE $? "Installing npm package"
 
 # use absolute, because cart.service exists there
 cp /home/centos/roboshop-shell-1/cart.service /etc/systemd/system/cart.service &>> $LOGFILE
 VALIDATE $? "Adding cart package"
 
-systemctl daemon-reload
+systemctl daemon-reload &>> $LOGFILE
 VALIDATE $? "Cart demon reload"
 
-systemctl enable cart 
+systemctl enable cart &>> $LOGFILE
 VALIDATE $? "Enabling cart "
 
-systemctl start cart
+systemctl start cart &>> $LOGFILE
 VALIDATE $? "Starting cart "
 
 

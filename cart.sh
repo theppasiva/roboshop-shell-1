@@ -28,7 +28,7 @@ else
 fi
 
 dnf module disable nodejs -y
-VALIDATE $? "Removing NodeJs10"
+VALIDATE $? "Disabling current NodeJs10"
 
 dnf module enable nodejs:18 -y
 VALIDATE $? "Enabling NodeJs18"
@@ -36,8 +36,14 @@ VALIDATE $? "Enabling NodeJs18"
 dnf install nodejs -y
 VALIDATE $? "Installing NodeJs Server"
 
-useradd roboshop
-VALIDATE $? "Creating roboshop user"
+id roboshop #if roboshop user does not exist, then it is failure
+if [ $? -ne 0 ]
+then
+    useradd roboshop
+    VALIDATE $? "roboshop user creation"
+else
+    echo -e "roboshop user already exist $Y SKIPPING $N"
+fi
 
 mkdir /app
 VALIDATE $? "Creating app directory"
@@ -46,7 +52,6 @@ curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip
 VALIDATE $? "Downloading the cart package"
 
 cd /app 
-VALIDATE $? "Adding app directory"
 
 unzip -o /tmp/cart.zip
 VALIDATE $? "Unzipping the cart package"
@@ -54,17 +59,18 @@ VALIDATE $? "Unzipping the cart package"
 npm install 
 VALIDATE $? "Installing npm package"
 
-cp cart.service /etc/systemd/system/cart.service
+# use absolute, because cart.service exists there
+cp /home/centos/roboshop-shell-1/cart.service /etc/systemd/system/cart.service &>> $LOGFILE
 VALIDATE $? "Adding cart package"
 
 systemctl daemon-reload
-VALIDATE $? "Loading demon reload"
+VALIDATE $? "Cart demon reload"
 
 systemctl enable cart 
-VALIDATE $? "Enabling cart server"
+VALIDATE $? "Enabling cart "
 
 systemctl start cart
-VALIDATE $? "Starting cart server"
+VALIDATE $? "Starting cart "
 
 
 

@@ -27,13 +27,13 @@ else
     echo "You are root user"
 fi
 
-dnf module disable nodejs -y
+dnf module disable nodejs -y $LOGFILE
 VALIDATE $? "Disabling current NodeJs10"
 
-dnf module enable nodejs:18 -y
+dnf module enable nodejs:18 -y $LOGFILE
 VALIDATE $? "Enabling NodeJs18"
 
-dnf install nodejs -y
+dnf install nodejs -y $LOGFILE
 VALIDATE $? "Installing NodeJs Server"
 
 id roboshop #if roboshop user does not exist, then it is failure

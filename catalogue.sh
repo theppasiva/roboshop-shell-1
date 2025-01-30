@@ -5,7 +5,7 @@ R="\e[31m"
 G="\e[32m"
 N="\e[0m"
 LOGFILE="/tmp/$0-$TIMESTAMP.log"
-MONGODB_HOST=mongodb.shivarampractise.online
+MONGODB_HOST=mongodb.sivapractice.online
 
 echo "Script started excuting at $TIMESTAMP" &>> $LOGFILE 
 
